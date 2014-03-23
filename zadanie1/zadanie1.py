@@ -135,10 +135,17 @@ class B32_aglomeration():
         self.connections=self.initial_connections
         print 'restoring connections to initial ones :,',self.initial_connections
     
-    def remove_a_connection(self,connection):
+    def remove_a_connection(self,connection2remove):
         '''removal of connection'''
-        print 'connection ,',connection
-        print 'all connections'
+        print 'connection2remove ,',connection2remove
+        i=0
+        for element in self.connections:
+            if element ==connection2remove:
+                print "removing:,", i
+                del self.connections[i]
+            i+=1
+        print '{} all connections: {}'.format(len(self.connections),
+                                              self.connections)
         
         
 if __name__=='__main__':
@@ -153,6 +160,7 @@ if __name__=='__main__':
 #     print zadanie1.get_all_direct_connections_for_cities()
     print zadanie1.check_city_connection('f','g')
     zadanie1.check_connection_in_aglomeration()
+    zadanie1.remove_a_connection('b c')
     
     
     
