@@ -23,7 +23,6 @@ def _Decimal_2_B32(array,decimal):
         return
     _Decimal_2_B32(array,div)
 
-
 def get_B32_cityname(decimal):
     B32number=[]
     _Decimal_2_B32(B32number,decimal)
@@ -40,19 +39,19 @@ def get_dec_from_B32(B32_number):
     return total
     
 
-
 class B32_aglomeration():
     
     def __init__(self,filename='flood00.in'):
         print 'welcome in B32_planet'
-        self.cities_number=0
+        self.all_cities_number=0
         self.conn_number=0
         self.max_wage=0
         self.connections=[]
+        self.initial_connections=[]
         self.filename='../dane/sets/'+filename
-        self.cities_number, self.conn_number,self.max_wage,self.connections=self.load_data(self.filename)
+        self.all_cities_number, self.conn_number,self.max_wage,self.connections=self.load_data(self.filename)
         self.all_city_names=set()
-        
+        self.connection_net={}
         
     def load_data(self,filename):
         '''file to load data'''
@@ -63,23 +62,63 @@ class B32_aglomeration():
         miasta,liczba_drog,max_wagi=contents[0].split()   
         drogi=[]
         for i in contents[1:]:
-            drogi.append(i.replace('\n',''))   
+            drogi.append(i.replace('\n',''))
+        self.initial_connections= drogi[:]   
         return miasta,liczba_drog,max_wagi,drogi
     
     def show_data(self):
-        print 'cities_number:',self.cities_number
+        print 'all_cities_number:',self.all_cities_number
         print 'conn_number  :',self.conn_number
         print 'max_wage     :',self.max_wage
         print 'connections  :',self.connections 
         print 'all cities   :',list(self.all_city_names)
-        print self.cities_number, self.conn_number,self.max_wage,self.connections
+        print self.all_cities_number, self.conn_number,self.max_wage,self.connections
          
     def get_list_of_all_cities(self):
         for conn_city in self.connections:
           for city in conn_city.split():
             self.all_city_names.add(city)
-        
-        
+    
+    def get_neigbours_for_city(self,city_name):
+        direct_connections=[]
+        for conn_city in self.connections:
+            if city_name in conn_city.split():
+                direct_connections.append\
+                (conn_city.replace(city_name,'').strip())
+        return direct_connections         
+    
+    def get_all_direct_connections_for_cities(self):
+        for city in self.all_city_names:
+            print city,self.get_neigbours_for_city(city)
+    
+    def _check_connecton(self,city_a,city_b,liczba_prob):
+        if liczba_prob>10:
+            return False
+        if self.connected==True:
+            return
+        liczba_prob+=1
+        print 'liczba_zaglebin={}'.format(liczba_prob)
+        if city_b in self.get_neigbours_for_city(city_a):
+            print 'podlaczone bezposrednio !!'
+            self.connected=True
+            return
+        else:
+            for neighbour_city in self.get_neigbours_for_city(city_a):
+#                 print 'miasto {}:sasiad {},zaglebienie {}'.format(
+#                                                                   city_a,
+#                                                                   neighbour_city,
+#                                                                   liczba_prob)
+                self._check_connecton(neighbour_city,city_b,liczba_prob)
+            
+    def check_city_connection(self,miastoA,miastoB):
+        self.connected=False
+        print 'checking connection from {} to {}'.format(miastoA,
+                                                      miastoB) 
+        liczba_prob=0
+        a=self._check_connecton(miastoA,miastoB,liczba_prob)
+        print self.connected
+        return self.connected
+         
 if __name__=='__main__':
     print get_B32_cityname(701)     
     print get_dec_from_B32('FQ')     
@@ -88,5 +127,6 @@ if __name__=='__main__':
     zadanie1.show_data()
     zadanie1.get_list_of_all_cities()
     zadanie1.show_data()
-
-
+#     print zadanie1.get_neigbours_for_city('b')
+#     print zadanie1.get_all_direct_connections_for_cities()
+    print zadanie1.check_city_connection('d','k')
