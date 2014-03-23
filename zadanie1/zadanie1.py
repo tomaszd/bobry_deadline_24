@@ -130,7 +130,7 @@ class B32_aglomeration():
             self.connection_net[city]=  conn_dict  
         print 'self.connection_net',self.connection_net      
  
-    def restore_a_connection(self):
+    def restore_all_connections(self):
         '''removal of connection'''
         self.connections=self.initial_connections
         print 'restoring connections to initial ones :,',self.initial_connections
@@ -144,9 +144,19 @@ class B32_aglomeration():
                 print "removing:,", i
                 del self.connections[i]
             i+=1
-        print '{} all connections: {}'.format(len(self.connections),
-                                              self.connections)
+        self.show_all_connections()
         
+    def show_all_connections(self):    
+        print '{} all connections: {}'.format(len(self.connections),
+                                      self.connections)
+    def measure_flooded(self):
+        number_of_unpaired=0
+        for city,other_connection in self.connection_net.items() :
+            for connection_result in other_connection.values():
+                if connection_result==False:
+                    number_of_unpaired+=1
+        print 'Total number of flooded cities : {}'.format(number_of_unpaired)            
+        return number_of_unpaired     
         
 if __name__=='__main__':
     print get_B32_cityname(701)     
@@ -155,14 +165,16 @@ if __name__=='__main__':
     zadanie1=B32_aglomeration('flood00.in')
     zadanie1.show_data()
     zadanie1.get_list_of_all_cities()
-    zadanie1.show_data()
-#     print zadanie1.get_neigbours_for_city('b')
-#     print zadanie1.get_all_direct_connections_for_cities()
-    print zadanie1.check_city_connection('f','g')
-    zadanie1.check_connection_in_aglomeration()
+    #############################################
+#     zadanie1.restore_all_connections()
+#     zadanie1.check_connection_in_aglomeration()
+#     zadanie1.measure_flooded()
+#     zadanie1.show_all_connections()
+    #############################################
     zadanie1.remove_a_connection('b c')
-    
-    
+    zadanie1.check_connection_in_aglomeration()
+    zadanie1.measure_flooded()
+    zadanie1.show_all_connections()
     
     
     
