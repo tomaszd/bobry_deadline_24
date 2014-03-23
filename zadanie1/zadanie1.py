@@ -48,10 +48,30 @@ class B32_aglomeration():
         self.max_wage=0
         self.connections=[]
         self.initial_connections=[]
-        self.filename='../dane/sets/'+filename
+        self.file=filename
+        self.path_to_data='../dane/sets/'
+        self.filename=self.path_to_data+self.file
         self.all_cities_number, self.conn_number,self.max_wage,self.connections=self.load_data(self.filename)
+        self.max_wage=int(self.max_wage)
         self.all_city_names=set()
         self.connection_net={}
+        self.direct_connections={}
+        self.total_measurement={}
+        
+        
+    def create_direct_connections(self):
+        '''function create connections''' 
+        self.direct_connections={}
+        print self.connections
+        for single_city in list(self.all_city_names):
+            connections_for_single_city=[]
+            for single_conn in self.connections:
+                if single_city in single_conn.split() :
+                    parts=single_conn.split()
+                    for elem in parts:
+                        if elem!=single_city:
+                            connections_for_single_city.append(elem)
+            self.direct_connections[single_city]=connections_for_single_city                
         
     def load_data(self,filename):
         '''file to load data'''
@@ -79,31 +99,19 @@ class B32_aglomeration():
           for city in conn_city.split():
             self.all_city_names.add(city)
     
-    def get_neigbours_for_city(self,city_name):
-        direct_connections=[]
-        for conn_city in self.connections:
-            if city_name in conn_city.split():
-                direct_connections.append\
-                (conn_city.replace(city_name,'').strip())
-        return direct_connections         
-    
-    def get_all_direct_connections_for_cities(self):
-        for city in self.all_city_names:
-            print city,self.get_neigbours_for_city(city)
-    
     def _check_connecton(self,city_a,city_b,liczba_prob):
         if self.connected==True:
             return
-        if liczba_prob>10:
+        if liczba_prob>5:
             return False
         liczba_prob+=1
 #         print 'liczba_zaglebin={}'.format(liczba_prob)
-        if city_b in self.get_neigbours_for_city(city_a):
+        if city_b in self.direct_connections[city_a]:
 #             print 'podlaczone bezposrednio !!'
             self.connected=True
             return
         else:
-            for neighbour_city in self.get_neigbours_for_city(city_a):
+            for neighbour_city in self.direct_connections[city_a]:
 #                 print 'miasto {}:sasiad {},zaglebienie {}'.format(
 #                                                                   city_a,
 #                                                                   neighbour_city,
@@ -111,6 +119,7 @@ class B32_aglomeration():
                 self._check_connecton(neighbour_city,city_b,liczba_prob)
             
     def check_city_connection(self,miastoA,miastoB):
+        ##TODO even better city a city B : connection [ARKDTYB] if len(roads)>10 break or sth 
         self.connected=False
 #         print 'checking connection from {} to {}'.format(miastoA,
 #                                                       miastoB) 
@@ -132,7 +141,7 @@ class B32_aglomeration():
  
     def restore_all_connections(self):
         '''removal of connection'''
-        self.connections=self.initial_connections
+        self.connections=self.initial_connections[::]
         print 'restoring connections to initial ones :,',self.initial_connections
     
     def remove_a_connection(self,connection2remove):
@@ -155,15 +164,58 @@ class B32_aglomeration():
             for connection_result in other_connection.values():
                 if connection_result==False:
                     number_of_unpaired+=1
+        number_of_unpaired=number_of_unpaired/2 
         print 'Total number of flooded cities : {}'.format(number_of_unpaired)            
-        return number_of_unpaired     
-        
+        return number_of_unpaired   
+    
+    def measure_lost_of_single_road(self,connection_lost):
+        self.restore_all_connections()
+        self.remove_a_connection(connection_lost)
+        self.create_direct_connections()
+        self.check_connection_in_aglomeration()
+        result=self.measure_flooded()
+        print 'after removal of connection : {}'\
+        ' number of cities without connection {}'.format(connection_lost,
+                                                         result)
+        return result
+    
+    def measure_lost_of_all_roads(self):
+        for single_road in self.connections:
+            result=self.measure_lost_of_single_road(single_road)
+            self.total_measurement[single_road]=result
+    
+    def show_total_measurement(self):
+        print 'Total measurement:\n\n\n'
+        for key,value in self.total_measurement.items():
+            print '{} : {}'.format(key,
+                                   value) 
+    
+    def create_output_file(self):
+        print self.total_measurement
+        max_keys=sorted(self.total_measurement.values())
+        max_values=sorted(list(set(max_keys)))[::-1]
+        max_values= max_values[:self.max_wage]
+        print max_values
+        output_file_context=[]
+        output_roads_counter=0
+        for key,value in self.total_measurement.items():
+            if value in  max_values:
+                output_roads_counter+=1
+                output_file_context.append('{} {}'.format(key,value))
+        output_file_context=[str(output_roads_counter)]+output_file_context       
+        print output_file_context
+        output_file_context=[line+'\n' for line in output_file_context]
+        outfile= self.file.replace('.in','.ans')
+        output_file=self.path_to_data+outfile
+        print 'results will be saved to {}:'.format(output_file) 
+        with open(output_file, 'w') as f: #open the file
+            f.writelines(output_file_context) #put the lines to a variable.    
+
 if __name__=='__main__':
     print get_B32_cityname(701)     
     print get_dec_from_B32('FQ')     
     print 'welcome in main '
     zadanie1=B32_aglomeration('flood00.in')
-    zadanie1.show_data()
     zadanie1.get_list_of_all_cities()
     #############################################
 #     zadanie1.restore_all_connections()
@@ -171,11 +223,22 @@ if __name__=='__main__':
 #     zadanie1.measure_flooded()
 #     zadanie1.show_all_connections()
     #############################################
-    zadanie1.remove_a_connection('b c')
-    zadanie1.check_connection_in_aglomeration()
-    zadanie1.measure_flooded()
-    zadanie1.show_all_connections()
-    
-    
-    
+    #procedure:
+    zadanie1.measure_lost_of_all_roads()
+    zadanie1.show_total_measurement()
+    zadanie1.create_output_file()
+#     zadanie1.restore_all_connections()
+#     zadanie1.remove_a_connection('d e')
+#     zadanie1.create_direct_connections()
+#     zadanie1.check_connection_in_aglomeration()
+#     result=zadanie1.measure_flooded()
+#     print result
+#     
+#     zadanie1.restore_all_connections()
+#     zadanie1.remove_a_connection('e k')
+#     zadanie1.create_direct_connections()
+#     zadanie1.check_connection_in_aglomeration()
+#     result=zadanie1.measure_flooded()
+#     print result
+#     
     
