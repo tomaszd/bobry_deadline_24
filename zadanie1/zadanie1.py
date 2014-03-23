@@ -16,7 +16,6 @@ B32_2_dec={'a':0,'b':1,'c':2,'d':3,'e':4,'f':5,'g':6,'h':7,
 dec_2_B32= dict (zip(B32_2_dec.values(),B32_2_dec.keys()))
 
 
-
 def _Decimal_2_B32(array,decimal):
     array.append(decimal%32)
     div=decimal/32
@@ -25,16 +24,21 @@ def _Decimal_2_B32(array,decimal):
     _Decimal_2_B32(array,div)
 
 
-def get_B32_city_name(decimal):
+def get_B32_cityname(decimal):
     B32number=[]
     _Decimal_2_B32(B32number,decimal)
     converted=[dec_2_B32[i]for i in B32number]
     
     return ''.join(converted[::-1])
     
-    
-    
-    
-    
-print get_B32_city_name(700)     
+def get_dec_from_B32(B32_number):
+    power=0
+    total=0
+    for letter in B32_number[::-1]:
+        total+= B32_2_dec[letter]*(32**power)
+        power+=1
+    return total
+
+print get_B32_cityname(700)     
+print get_dec_from_B32('FP')     
     
