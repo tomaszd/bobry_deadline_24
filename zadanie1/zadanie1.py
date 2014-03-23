@@ -92,14 +92,14 @@ class B32_aglomeration():
             print city,self.get_neigbours_for_city(city)
     
     def _check_connecton(self,city_a,city_b,liczba_prob):
-        if liczba_prob>10:
-            return False
         if self.connected==True:
             return
+        if liczba_prob>10:
+            return False
         liczba_prob+=1
-        print 'liczba_zaglebin={}'.format(liczba_prob)
+#         print 'liczba_zaglebin={}'.format(liczba_prob)
         if city_b in self.get_neigbours_for_city(city_a):
-            print 'podlaczone bezposrednio !!'
+#             print 'podlaczone bezposrednio !!'
             self.connected=True
             return
         else:
@@ -112,13 +112,35 @@ class B32_aglomeration():
             
     def check_city_connection(self,miastoA,miastoB):
         self.connected=False
-        print 'checking connection from {} to {}'.format(miastoA,
-                                                      miastoB) 
+#         print 'checking connection from {} to {}'.format(miastoA,
+#                                                       miastoB) 
         liczba_prob=0
         a=self._check_connecton(miastoA,miastoB,liczba_prob)
-        print self.connected
         return self.connected
-         
+    
+    def check_connection_in_aglomeration(self):
+        for city in self.all_city_names:
+            all_except_this=self.all_city_names-set(city)
+            print '###'*20
+            print 'creating conn dict', city,list(all_except_this)
+            conn_dict={}
+            for other_city in list(all_except_this):
+                print 'connected:',self.check_city_connection(city,other_city)
+                conn_dict[other_city]=self.check_city_connection(city,other_city)
+            self.connection_net[city]=  conn_dict  
+        print 'self.connection_net',self.connection_net      
+ 
+    def restore_a_connection(self):
+        '''removal of connection'''
+        self.connections=self.initial_connections
+        print 'restoring connections to initial ones :,',self.initial_connections
+    
+    def remove_a_connection(self,connection):
+        '''removal of connection'''
+        print 'connection ,',connection
+        print 'all connections'
+        
+        
 if __name__=='__main__':
     print get_B32_cityname(701)     
     print get_dec_from_B32('FQ')     
@@ -129,4 +151,11 @@ if __name__=='__main__':
     zadanie1.show_data()
 #     print zadanie1.get_neigbours_for_city('b')
 #     print zadanie1.get_all_direct_connections_for_cities()
-    print zadanie1.check_city_connection('d','k')
+    print zadanie1.check_city_connection('f','g')
+    zadanie1.check_connection_in_aglomeration()
+    
+    
+    
+    
+    
+    
