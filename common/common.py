@@ -1,2 +1,0 @@
-to bedzie zrobione
-gjggjhg
