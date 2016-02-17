@@ -1,0 +1,1 @@
+[{"kolor": "r", "ilosc": 3, "komentarz": null, "cena": "$139.99", "nazwa": "Manabarbs"}, {"kolor": "l", "ilosc": 1, "komentarz": null, "cena": "$9.99", "nazwa": "Dryad arbor"}]
